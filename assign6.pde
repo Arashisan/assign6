@@ -28,7 +28,15 @@ class FlightType
 int state = GameState.START;
 int currentType = EnemysShowingType.STRAIGHT;
 int enemyCount = 8;
+int bulletCount = 5;
+int bossCount = 5;
+int score;
+int enemyScore = 20;
+int bossScore = 120;
+PFont f;
 Enemy[] enemys = new Enemy[enemyCount];
+Boss[] bosses = new Boss[bossCount];
+Bullet[] bullets = new Bullet[bulletCount];
 Fighter fighter;
 Background bg;
 FlameMgr flameMgr;
@@ -52,6 +60,8 @@ void setup () {
 	treasure = new Treasure();
 	hpDisplay = new HPDisplay();
 	fighter = new Fighter(20);
+    score = 0;
+    f = createFont("Arial",12);
 }
 
 void draw()
@@ -70,26 +80,88 @@ void draw()
 			addEnemy(currentType++);
 			currentType = currentType%4;
 		}		
+            
+            for (int i = 0; i < bossCount; ++i) {
+                    if (bosses[i]!= null) {
+                            wait = 7000;
+                            bosses[i].move();
+                            bosses[i].draw();
+                            if (bosses[i].isCollideWithFighter()) {
+                                      fighter.hpValueChange(-50);
+                                      flameMgr.addFlame(bosses[i].x, bosses[i].y);
+                                      bosses[i] = null;
+                            }
+                            else if (bosses[i].isOutOfBorder()) {
+                                      bosses[i] = null;
+                            }
+                            
+                            //collide bullet
+                            for(int j= 0; j < bulletCount; ++j){
+                                if (bullets[j] != null && bosses[i]!= null) {
+                                    if (bosses[i].isCollideWithBullet(j)) {
+                                      bullets[j] = null;
+                                      bosses[i].hp -= 1;
+                                      if(bosses[i].hp <= 0){
+                                        flameMgr.addFlame(bosses[i].x, bosses[i].y);
+                                        scoreChange(bossScore);
+                                        bosses[i] = null;
+                                      }
+                                    }
+                                }
+                                    
+                            }
+                    }
+            }
+            
 
 		for (int i = 0; i < enemyCount; ++i) {
 			if (enemys[i]!= null) {
+                            wait = 4000;
 				enemys[i].move();
 				enemys[i].draw();
-				if (enemys[i].isCollideWithFighter()) {
-					fighter.hpValueChange(-20);
-					flameMgr.addFlame(enemys[i].x, enemys[i].y);
-					enemys[i]=null;
-				}
-				else if (enemys[i].isOutOfBorder()) {
-					enemys[i]=null;
-				}
+                            if (enemys[i].isCollideWithFighter()) {
+                                    fighter.hpValueChange(-20);
+                                    flameMgr.addFlame(enemys[i].x, enemys[i].y);
+                                    enemys[i] = null;
+                            }
+                            else if (enemys[i].isOutOfBorder()) {
+                                    enemys[i] = null;
+                            }
+                            //collide bullet
+                            for(int j= 0; j < bulletCount; ++j){
+                                if (bullets[j] != null && enemys[i]!= null) {
+                                    if (enemys[i].isCollideWithBullet(j)) {
+                                      flameMgr.addFlame(enemys[i].x, enemys[i].y);
+                                      scoreChange(enemyScore);
+                                      enemys[i] = null;
+                                      bullets[j] = null;
+                                    }
+                                }
+                            }
 			}
 		}
+
+            //bullet
+            for (int i = 0; i < bulletCount; ++i){
+                    if (bullets[i] != null) {
+                            bullets[i].move();  
+                            bullets[i].draw();
+                            if (bullets[i].isOutOfBorder()){
+                                    bullets[i] = null;
+                            }
+                    }
+            }
+                    
 		// 這地方應該加入Fighter 血量顯示UI
+            hpDisplay.updateWithFighterHP(fighter.hp);
+            
+            //show score
+            showScore(score);
 		
 	}
 	else if (state == GameState.END) {
 		bg.draw();
+            score = 0;
 	}
 }
 boolean isHit(int ax, int ay, int aw, int ah, int bx, int by, int bw, int bh)
@@ -99,6 +171,19 @@ boolean isHit(int ax, int ay, int aw, int ah, int bx, int by, int bw, int bh)
     // Collision y-axis?
     boolean collisionY = (ay + ah >= by) && (by + bh >= ay);
     return collisionX && collisionY;
+}
+
+void showScore(int i)
+{
+  textFont(f,26);
+  textAlign(LEFT);
+  fill(255);
+  text("Score:"+i,10,460);
+}
+
+void scoreChange(int value)
+{
+  score += value;
 }
 
 void keyPressed(){
@@ -128,12 +213,14 @@ void keyReleased(){
       case GameState.START:
       case GameState.END:
         state = GameState.PLAYING;
+            wait = 4000;
 		enemys = new Enemy[enemyCount];
+            bosses = new Boss[bossCount];
 		flameMgr = new FlameMgr();
 		treasure = new Treasure();
 		fighter = new Fighter(20);
+            currentType = EnemysShowingType.STRAIGHT;
       default : break ;
     }
   }
 }
-
