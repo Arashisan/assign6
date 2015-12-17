@@ -161,7 +161,6 @@ void draw()
 	}
 	else if (state == GameState.END) {
 		bg.draw();
-            score = 0;
 	}
 }
 boolean isHit(int ax, int ay, int aw, int ah, int bx, int by, int bw, int bh)
@@ -214,11 +213,13 @@ void keyReleased(){
       case GameState.END:
         state = GameState.PLAYING;
             wait = 4000;
-		enemys = new Enemy[enemyCount];
+	    enemys = new Enemy[enemyCount];
             bosses = new Boss[bossCount];
-		flameMgr = new FlameMgr();
-		treasure = new Treasure();
-		fighter = new Fighter(20);
+            bullets = new Bullet[bulletCount]; 
+	    flameMgr = new FlameMgr();
+	    treasure = new Treasure();
+	    fighter = new Fighter(20);
+            score = 0;
             currentType = EnemysShowingType.STRAIGHT;
       default : break ;
     }
