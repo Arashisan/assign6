@@ -13,7 +13,7 @@ class Enemy{
 		
 	}
 	void move() {
-		this.x+= 5;	
+		this.x+= speed;	
 	}
 
 	void draw()
@@ -23,15 +23,24 @@ class Enemy{
 
 	boolean isCollideWithFighter()
 	{
+            if (isHit(this.x,this.y,this.enemyImg.width,this.enemyImg.height,fighter.x,fighter.y,fighter.fighterImg.width,fighter.fighterImg.height))
+                    return true;
 		return false;
 	}
-
+    
+    boolean isCollideWithBullet(int i)
+    {
+            if (isHit(this.x,this.y,this.enemyImg.width,this.enemyImg.height,bullets[i].x,bullets[i].y,bullets[i].bulletImg.width,bullets[i].bulletImg.height))
+                    return true;
+            return false;
+    }
+    
 	boolean isOutOfBorder()
 	{
+            if (this.x > width)
+                    return true;            
 		return false;
 	}
-
-
 }
 
 void addEnemy(int type)
@@ -39,6 +48,9 @@ void addEnemy(int type)
 	for (int i = 0; i < enemyCount; ++i) {
 		enemys[i] = null;
 	}
+    for (int i = 0; i < bossCount; ++i) {
+            bosses[i] = null;
+    }
 	switch (type) {
 		case EnemysShowingType.STRAIGHT:
 			addStraightEnemy();
@@ -100,6 +112,6 @@ void addDiamondEnemy()
 void addEnemyStrong()
 {
 	for (int i = 0; i < 5; ++i) {
-		enemys[i] = new Enemy(0, 40+ i * 85, FlightType.ENEMYSTRONG);
+		bosses[i] = new Boss(0, 40+ i * 85, FlightType.ENEMYSTRONG);
 	}
 }
