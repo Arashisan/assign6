@@ -32,7 +32,12 @@ class Fighter{
 	}
 
 	void shoot() {
-		
+            for(int i = 0; i < 5;i++){
+                    if(bullets[i] == null){
+                            bullets[i] = new Bullet(this.x+this.fighterImg.width/5, this.y+this.fighterImg.height/4);
+                            break;
+                    }
+            }		
 	}
 
 	void move(int direct) {
